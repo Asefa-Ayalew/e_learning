@@ -1,4 +1,5 @@
 using System.Text;
+using ELearning.Api.Configuration;
 using ELearning.Api.Middleware;
 using ELearning.Application.Common.Authentication;
 using ELearning.Application.Features.Auth;
@@ -72,7 +73,7 @@ builder.Services
             };
     });
 
-builder.Services.AddAuthorization();
+builder.Services.AddApplicationAuthorization();
 builder.Services.AddScoped<
     IPasswordHasher,
     BCryptPasswordHasher>();

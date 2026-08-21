@@ -4,6 +4,7 @@ using ELearning.Application.Features.Auth.Register;
 using ELearning.Application.Interfaces;
 using ELearning.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using ELearning.Application.Features.Auth.Me;
 
 namespace ELearning.Application.Features.Auth;
 
@@ -275,5 +276,60 @@ public sealed class AuthService : IAuthService
 
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
+    }
+    // ================================================================
+    // CURRENT USER
+    // ================================================================
+    //
+    // Gets the currently authenticated user.
+    //
+    // The API extracts the user's ID from the JWT:
+    //
+    //     JWT
+    //       ↓
+    // HttpContext.User
+    //       ↓
+    // user ID
+    //       ↓
+    // Database
+    //       ↓
+    // MeResponse
+    //
+    // ================================================================
+
+    public async Task<MeResponse?> GetCurrentUserAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await _dbContext.Users
+            .Include(user => user.UserRoles)
+                .ThenInclude(userRole => userRole.Role)
+            .FirstOrDefaultAsync(
+                user => user.Id == userId,
+                cancellationToken);
+
+        if (user is null)
+        {
+            return null;
+        }
+
+        var roles = user.UserRoles
+            .Where(userRole =>
+                userRole.Role is not null &&
+                userRole.Role.IsActive)
+            .Select(userRole => userRole.Role!.Name)
+            .ToList();
+
+        return new MeResponse(
+            user.Id,
+            user.FirstName,
+            user.LastName,
+            user.Email,
+            user.PhoneNumber,
+            user.ProfileImageUrl,
+            user.IsActive,
+            user.IsEmailVerified,
+            user.LastLoginAt,
+            roles);
     }
 }

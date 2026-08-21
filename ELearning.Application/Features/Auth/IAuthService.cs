@@ -1,5 +1,6 @@
 using ELearning.Application.Common.Authentication;
 using ELearning.Application.Features.Auth.Login;
+using ELearning.Application.Features.Auth.Me;
 using ELearning.Application.Features.Auth.Register;
 
 namespace ELearning.Application.Features.Auth;
@@ -20,5 +21,8 @@ public interface IAuthService
 
     Task RevokeAsync(
         string refreshToken,
+        CancellationToken cancellationToken = default);
+    Task<MeResponse?> GetCurrentUserAsync(
+        Guid userId,
         CancellationToken cancellationToken = default);
 }

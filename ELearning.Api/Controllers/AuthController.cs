@@ -1,4 +1,5 @@
 using ELearning.Application.Common.Authentication;
+using ELearning.Application.Common.Authorization;
 using ELearning.Application.Features.Auth;
 using ELearning.Application.Features.Auth.Login;
 using ELearning.Application.Features.Auth.Refresh;
@@ -18,6 +19,19 @@ public sealed class AuthController : ControllerBase
     {
         _authService = authService;
     }
+    // For test
+    // [HttpGet("Admin")]
+    // [Authorize(Policy = AuthorizationPolicies.RequireAdmin)]
+    // public IActionResult Admin()
+    // {
+    //     return Ok("You have Admin Access.");
+    // }
+    // [HttpGet("Student")]
+    // [Authorize(Policy = AuthorizationPolicies.RequireStudent)]
+    // public IActionResult Student()
+    // {
+    //     return Ok("You have Student Access.");
+    // }
 
     [HttpPost("register")]
     public async Task<ActionResult<RegisterResponse>> Register(
