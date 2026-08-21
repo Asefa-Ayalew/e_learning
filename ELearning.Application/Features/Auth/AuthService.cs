@@ -255,10 +255,6 @@ public sealed class AuthService : IAuthService
             authResult.RefreshTokenExpiresAt);
     }
 
-    // ================================================================
-    // REVOKE / LOGOUT
-    // ================================================================
-
     public async Task RevokeAsync(
         string refreshToken,
         CancellationToken cancellationToken = default)
@@ -270,8 +266,7 @@ public sealed class AuthService : IAuthService
 
         if (storedToken is null)
         {
-            throw new UnauthorizedAccessException(
-                "Invalid refresh token.");
+            return;
         }
 
         if (!storedToken.IsRevoked)

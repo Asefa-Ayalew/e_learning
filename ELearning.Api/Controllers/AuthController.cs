@@ -3,6 +3,7 @@ using ELearning.Application.Features.Auth;
 using ELearning.Application.Features.Auth.Login;
 using ELearning.Application.Features.Auth.Refresh;
 using ELearning.Application.Features.Auth.Register;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ELearning.Api.Controllers;
@@ -54,8 +55,9 @@ public sealed class AuthController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("revoke")]
-    public async Task<IActionResult> Revoke(
+    [HttpPost("logout")]
+    [AllowAnonymous]
+    public async Task<IActionResult> Logout(
         [FromBody] RefreshTokenRequest request,
         CancellationToken cancellationToken)
     {
@@ -64,5 +66,24 @@ public sealed class AuthController : ControllerBase
             cancellationToken);
 
         return NoContent();
+    }
+    [HttpGet("me")]
+    [Authorize]
+    public IActionResult Me()
+    {
+        var userId = User.FindFirst(
+            System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        var email = User.FindFirst(
+            System.Security.Claims.ClaimTypes.Email)?.Value;
+        var roles = User.FindAll(
+            System.Security.Claims.ClaimTypes.Role).Select(r => r.Value).ToList();
+
+        return Ok(new
+        {
+            userId,
+            email,
+            roles
+        });
     }
 }
