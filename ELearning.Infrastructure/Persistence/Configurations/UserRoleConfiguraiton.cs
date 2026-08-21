@@ -1,0 +1,46 @@
+using ELearning.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace ELearning.Infrastructure.Persistence.Configurations;
+
+public class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
+{
+    public void Configure(EntityTypeBuilder<UserRole> builder)
+    {
+        builder.ToTable("user_roles");
+
+        // Composite primary key:
+        //
+        // user_id + role_id
+        //
+        // This prevents:
+        //
+        // user 1 + admin
+        // user 1 + admin   ❌ duplicate
+        //
+        builder.HasKey(userRole => new
+        {
+            userRole.UserId,
+            userRole.RoleId
+        });
+
+        builder.Property(userRole => userRole.UserId)
+            .HasColumnName("user_id");
+
+        builder.Property(userRole => userRole.RoleId)
+            .HasColumnName("role_id");
+
+        // User (1) → (*) UserRole
+        builder.HasOne(userRole => userRole.User)
+            .WithMany(user => user.UserRoles)
+            .HasForeignKey(userRole => userRole.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Role (1) → (*) UserRole
+        builder.HasOne(userRole => userRole.Role)
+            .WithMany(role => role.UserRoles)
+            .HasForeignKey(userRole => userRole.RoleId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+}
