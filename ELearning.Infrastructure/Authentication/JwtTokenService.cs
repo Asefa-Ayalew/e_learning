@@ -20,10 +20,6 @@ public sealed class JwtTokenService : IJwtTokenService
 
     public AuthResponse GenerateTokens(User user)
     {
-        // ============================================================
-        // ACCESS TOKEN
-        // ============================================================
-
         var accessTokenExpiresAt = DateTime.UtcNow.AddMinutes(
             _jwtSettings.AccessTokenExpirationMinutes);
 
@@ -38,10 +34,10 @@ public sealed class JwtTokenService : IJwtTokenService
             new("lastName", user.LastName)
         };
 
-        // Add the user's roles to the JWT.
         foreach (var userRole in user.UserRoles)
         {
-            if (userRole.Role is not null)
+            if (userRole.Role is not null &&
+                userRole.Role.IsActive)
             {
                 claims.Add(
                     new Claim(
@@ -49,7 +45,6 @@ public sealed class JwtTokenService : IJwtTokenService
                         userRole.Role.Name));
             }
         }
-
         var key = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_jwtSettings.SecretKey));
 
@@ -67,10 +62,6 @@ public sealed class JwtTokenService : IJwtTokenService
         var accessToken = new JwtSecurityTokenHandler()
             .WriteToken(jwt);
 
-        // ============================================================
-        // REFRESH TOKEN
-        // ============================================================
-
         var refreshToken = GenerateRefreshToken();
 
         var refreshTokenExpiresAt = DateTime.UtcNow.AddDays(
@@ -85,7 +76,6 @@ public sealed class JwtTokenService : IJwtTokenService
 
     private static string GenerateRefreshToken()
     {
-        // Cryptographically secure random bytes.
         var bytes = RandomNumberGenerator.GetBytes(64);
 
         return Convert.ToBase64String(bytes);

@@ -2,6 +2,7 @@ using ELearning.Application.Common.Authentication;
 using ELearning.Application.Common.Authorization;
 using ELearning.Application.Features.Auth;
 using ELearning.Application.Features.Auth.Login;
+using ELearning.Application.Features.Auth.Me;
 using ELearning.Application.Features.Auth.Refresh;
 using ELearning.Application.Features.Auth.Register;
 using Microsoft.AspNetCore.Authorization;
@@ -83,21 +84,26 @@ public sealed class AuthController : ControllerBase
     }
     [HttpGet("me")]
     [Authorize]
-    public IActionResult Me()
+    public async Task<ActionResult<MeResponse>> Me(
+    CancellationToken cancellationToken)
     {
-        var userId = User.FindFirst(
+        var userIdValue = User.FindFirst(
             System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
-        var email = User.FindFirst(
-            System.Security.Claims.ClaimTypes.Email)?.Value;
-        var roles = User.FindAll(
-            System.Security.Claims.ClaimTypes.Role).Select(r => r.Value).ToList();
-
-        return Ok(new
+        if (!Guid.TryParse(userIdValue, out var userId))
         {
+            return Unauthorized();
+        }
+
+        var user = await _authService.GetCurrentUserAsync(
             userId,
-            email,
-            roles
-        });
+            cancellationToken);
+
+        if (user is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(user);
     }
 }
