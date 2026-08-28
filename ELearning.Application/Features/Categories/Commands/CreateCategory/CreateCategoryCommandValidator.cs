@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace ELearning.Application.Features.Categories.CreateCategory;
+namespace ELearning.Application.Features.Categories.Commands.CreateCategory;
 
 public sealed class CreateCategoryCommandValidator
     : AbstractValidator<CreateCategoryCommand>

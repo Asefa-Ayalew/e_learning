@@ -4,7 +4,7 @@ using ELearning.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace ELearning.Application.Features.Categories.CreateCategory;
+namespace ELearning.Application.Features.Categories.Commands.CreateCategory;
 
 public sealed class CreateCategoryCommandHandler
     : IRequestHandler<CreateCategoryCommand, CategoryResponse>
