@@ -12,6 +12,9 @@ public interface IApplicationDbContext
     DbSet<UserRole> UserRoles { get; }
 
     DbSet<RefreshToken> RefreshTokens { get; }
+    DbSet<Course> Courses { get; }
+    DbSet<Category> Categories { get; }
+    DbSet<Enrollment> Enrollments { get; }
 
     Task<int> SaveChangesAsync(
         CancellationToken cancellationToken = default);

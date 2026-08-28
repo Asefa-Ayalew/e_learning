@@ -3,6 +3,7 @@ using ELearning.Api.Configuration;
 using ELearning.Api.Middleware;
 using ELearning.Application.Common.Authentication;
 using ELearning.Application.Features.Auth;
+using ELearning.Application;
 using ELearning.Application.Interfaces;
 
 using ELearning.Infrastructure.Authentication;
@@ -134,7 +135,7 @@ builder.Services.AddSwaggerGen(options =>
             ] = []
         });
 });
-
+builder.Services.AddApplication();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

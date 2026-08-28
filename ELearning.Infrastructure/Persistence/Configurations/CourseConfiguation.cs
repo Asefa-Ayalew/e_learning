@@ -4,100 +4,102 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ELearning.Infrastructure.Persistence.Configurations;
 
-public class CourseConfiguration : IEntityTypeConfiguration<Course>
+public sealed class CourseConfiguration
+    : IEntityTypeConfiguration<Course>
 {
     public void Configure(EntityTypeBuilder<Course> builder)
     {
         builder.ToTable("courses");
 
-
-        // ============================================================
-        // PRIMARY KEY
-        // ============================================================
-
         builder.HasKey(course => course.Id);
 
-
-        // ============================================================
-        // PROPERTIES
-        // ============================================================
+        builder.Property(course => course.Id)
+            .HasColumnName("id");
 
         builder.Property(course => course.Title)
+            .HasColumnName("title")
             .IsRequired()
             .HasMaxLength(200);
 
         builder.Property(course => course.Slug)
+            .HasColumnName("slug")
             .IsRequired()
             .HasMaxLength(200);
-
-        builder.Property(course => course.Description)
-            .HasMaxLength(2000);
-
-
-        // ============================================================
-        // UNIQUE SLUG
-        // ============================================================
-        //
-        // Example:
-        //
-        // "aspnet-core-for-beginners"
-        //
-        // should identify only one course.
-        //
 
         builder.HasIndex(course => course.Slug)
             .IsUnique();
 
+        builder.Property(course => course.ShortDescription)
+            .HasColumnName("short_description")
+            .HasMaxLength(500);
 
-        // ============================================================
-        // COURSE → CATEGORY
-        // MANY-TO-ONE
-        // ============================================================
-        //
-        // Many Courses belong to ONE Category.
-        //
-        // Course (*) ─────────── (1) Category
-        //
-        // Foreign key:
-        //
-        //     Course.CategoryId
-        //
+        builder.Property(course => course.Description)
+            .HasColumnName("description")
+            .HasMaxLength(5000);
 
-        builder.HasOne(course => course.Category)
+        builder.Property(course => course.ThumbnailUrl)
+            .HasColumnName("thumbnail_url")
+            .HasMaxLength(1000);
 
-            // A Category can have many Courses.
-            .WithMany(category => category.Courses)
-
-            // Course.CategoryId is the FK.
-            .HasForeignKey(course => course.CategoryId)
-
-            // Every Course must have a Category.
+        builder.Property(course => course.Price)
+            .HasColumnName("price")
+            .HasPrecision(18, 2)
             .IsRequired();
 
+        builder.Property(course => course.IsFree)
+            .HasColumnName("is_free")
+            .IsRequired();
 
-        // ============================================================
-        // COURSE → INSTRUCTOR
-        // MANY-TO-ONE
-        // ============================================================
-        //
-        // Many Courses can belong to ONE Instructor.
-        //
-        // Course (*) ─────────── (1) User
-        //
-        // Foreign key:
-        //
-        //     Course.InstructorId
-        //
+        builder.Property(course => course.IsPublished)
+            .HasColumnName("is_published")
+            .IsRequired();
+
+        builder.Property(course => course.PublishedAt)
+            .HasColumnName("published_at");
+
+        builder.Property(course => course.InstructorId)
+            .HasColumnName("instructor_id")
+            .IsRequired();
+
+        builder.Property(course => course.CategoryId)
+            .HasColumnName("category_id")
+            .IsRequired();
+
+        builder.Property(course => course.CreatedAt)
+            .HasColumnName("created_at")
+            .IsRequired();
+
+        builder.Property(course => course.UpdatedAt)
+            .HasColumnName("updated_at");
 
         builder.HasOne(course => course.Instructor)
-
-            // One User can teach many Courses.
             .WithMany(user => user.Courses)
-
-            // Course.InstructorId is the FK.
             .HasForeignKey(course => course.InstructorId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-            // Every Course must have an Instructor.
-            .IsRequired();
+        builder.HasOne(course => course.Category)
+            .WithMany(category => category.Courses)
+            .HasForeignKey(course => course.CategoryId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(course => course.Sections)
+            .WithOne(section => section.Course)
+            .HasForeignKey(section => section.CourseId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(course => course.Enrollments)
+            .WithOne(enrollment => enrollment.Course)
+            .HasForeignKey(enrollment => enrollment.CourseId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(course => course.Reviews)
+            .WithOne(review => review.Course)
+            .HasForeignKey(review => review.CourseId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasMany(course => course.Certificates)
+            .WithOne(certificate => certificate.Course)
+            .HasForeignKey(certificate => certificate.CourseId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
