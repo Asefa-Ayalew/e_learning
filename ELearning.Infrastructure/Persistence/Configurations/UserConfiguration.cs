@@ -46,8 +46,21 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(30);
 
         builder.Property(user => user.ProfileImageUrl)
-            .HasColumnName("profile_image_url")
-            .HasMaxLength(500);
+      .HasColumnName("profile_image_url")
+      .HasMaxLength(500);
+
+        builder.Property(user => user.IsActive)
+            .HasColumnName("is_active")
+            .IsRequired()
+            .HasDefaultValue(true);
+
+        builder.Property(user => user.IsEmailVerified)
+            .HasColumnName("is_email_verified")
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(user => user.LastLoginAt)
+            .HasColumnName("last_login_at");
 
         builder.Property(user => user.CreatedAt)
             .HasColumnName("created_at")
@@ -55,11 +68,5 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(user => user.UpdatedAt)
             .HasColumnName("updated_at");
-
-        // User (1) → (*) UserRole
-        builder.HasMany(user => user.UserRoles)
-            .WithOne(userRole => userRole.User)
-            .HasForeignKey(userRole => userRole.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }

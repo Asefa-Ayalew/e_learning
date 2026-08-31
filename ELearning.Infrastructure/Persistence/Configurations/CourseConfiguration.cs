@@ -97,6 +97,7 @@ public sealed class CourseConfiguration
             .HasForeignKey(review => review.CourseId)
             .OnDelete(DeleteBehavior.Cascade);
 
+
         builder.HasMany(course => course.Certificates)
             .WithOne(certificate => certificate.Course)
             .HasForeignKey(certificate => certificate.CourseId)
