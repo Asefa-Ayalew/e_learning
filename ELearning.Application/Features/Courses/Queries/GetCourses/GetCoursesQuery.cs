@@ -5,5 +5,9 @@ using MediatR;
 namespace ELearning.Application.Features.Courses.Queries.GetCourses;
 
 public sealed record GetCoursesQuery(
-    CollectionQuery Query
+    CollectionQuery Query,
+    Guid? CategoryId = null,
+    bool? IsPublished = null,
+    decimal? MinPrice = null,
+    decimal? MaxPrice = null
 ) : IRequest<PagedResult<CourseResponseDto>>;

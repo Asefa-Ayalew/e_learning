@@ -25,30 +25,48 @@ public sealed class GetCoursesQueryHandler
         var query = _context.Courses
             .AsNoTracking();
 
-        // ---------------------------------------------------------
-        // SEARCH
-        // ---------------------------------------------------------
-
         if (!string.IsNullOrWhiteSpace(request.Query.Search))
         {
-            var search = request.Query.Search
-                .Trim()
-                .ToLower();
+            var search = request.Query.Search.Trim();
 
             query = query.Where(course =>
-                course.Title.ToLower().Contains(search) ||
+                EF.Functions.ILike(
+                    course.Title,
+                    $"%{search}%") ||
 
-                course.Slug.ToLower().Contains(search) ||
+                EF.Functions.ILike(
+                    course.Slug,
+                    $"%{search}%") ||
 
                 (course.ShortDescription != null &&
-                 course.ShortDescription
-                     .ToLower()
-                     .Contains(search)));
+                 EF.Functions.ILike(
+                     course.ShortDescription,
+                     $"%{search}%")));
         }
 
-        // ---------------------------------------------------------
-        // PROJECTION
-        // ---------------------------------------------------------
+        if (request.CategoryId.HasValue)
+        {
+            query = query.Where(course =>
+                course.CategoryId == request.CategoryId.Value);
+        }
+
+        if (request.IsPublished.HasValue)
+        {
+            query = query.Where(course =>
+                course.IsPublished == request.IsPublished.Value);
+        }
+
+        if (request.MinPrice.HasValue)
+        {
+            query = query.Where(course =>
+                course.Price >= request.MinPrice.Value);
+        }
+
+        if (request.MaxPrice.HasValue)
+        {
+            query = query.Where(course =>
+                course.Price <= request.MaxPrice.Value);
+        }
 
         var projectedQuery = query
             .OrderByDescending(course => course.CreatedAt)
@@ -71,10 +89,6 @@ public sealed class GetCoursesQueryHandler
                 course.CategoryId,
                 course.Category.Name
             ));
-
-        // ---------------------------------------------------------
-        // PAGINATION
-        // ---------------------------------------------------------
 
         return await projectedQuery.ToPagedResultAsync(
             request.Query,
