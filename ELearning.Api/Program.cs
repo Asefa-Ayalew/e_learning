@@ -152,9 +152,11 @@ if (app.Environment.IsDevelopment())
 
         options.DocumentTitle =
             "ELearning API - Swagger";
+
+        options.DocExpansion(
+            Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
     });
 }
-
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseHttpsRedirection();
 

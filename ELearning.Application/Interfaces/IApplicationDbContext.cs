@@ -10,6 +10,7 @@ public interface IApplicationDbContext
     DbSet<Role> Roles { get; }
 
     DbSet<UserRole> UserRoles { get; }
+    DbSet<Section> Sections { get; }
 
     DbSet<RefreshToken> RefreshTokens { get; }
     DbSet<Course> Courses { get; }
