@@ -1,5 +1,7 @@
 using ELearning.Application.Features.Lessons.Commands.CreateLesson;
 using ELearning.Application.Features.Lessons.Commands.DeleteLesson;
+using ELearning.Application.Features.Lessons.Commands.PublishLesson;
+using ELearning.Application.Features.Lessons.Commands.UnpublishLesson;
 using ELearning.Application.Features.Lessons.Commands.UpdateLesson;
 using ELearning.Application.Features.Lessons.Queries.GetLessonById;
 using ELearning.Application.Features.Lessons.Queries.GetLessons;
@@ -91,5 +93,27 @@ public sealed class LessonsController : ControllerBase
             cancellationToken);
 
         return NoContent();
+    }
+    [HttpPost("{id:guid}/publish")]
+    public async Task<IActionResult> Publish(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var lesson = await _sender.Send(
+            new PublishLessonCommand(id),
+            cancellationToken);
+
+        return Ok(lesson);
+    }
+    [HttpPost("{id:guid}/unpublish")]
+    public async Task<IActionResult> Unpublish(
+        [FromRoute] Guid id,
+        CancellationToken cancellationToken)
+    {
+        var lesson = await _sender.Send(
+            new UnpublishLessonCommand(id),
+            cancellationToken);
+
+        return Ok(lesson);
     }
 }
